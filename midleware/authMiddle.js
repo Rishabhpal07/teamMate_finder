@@ -3,7 +3,6 @@ const User = require("../model/user");
 
 async function usermiddleware(req,res,next) {
     const authHeader = req.headers["authorization"];
-
     const token = authHeader.split(" ")[1];
     try {
        const decode=jwt.verify(token,process.env.JWT_SECRET) 

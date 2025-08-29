@@ -40,10 +40,10 @@ router.post("/register", async (req, res) => {
       const token = jwt.sign({ id: user._id },process.env.JWT_SECRET);
      
   
-      return res.status(201).json({
+      return res.status(200).json({
         message: "You are signed up",
         token,
-        user: user.getPublicProfile(), // you can limit this if needed
+        user: user.getPublicProfile(), 
       });
   
     } catch (error) {
@@ -69,7 +69,7 @@ router.post("/register", async (req, res) => {
           return res.status(401).json({ message: 'Invalid credentials' });
         }
     
-        const token = jwt.sign({ id: user._id }, jwt_secret);
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
     
         res.json({
          message:"user logged in",
@@ -81,5 +81,4 @@ router.post("/register", async (req, res) => {
       }
     });
   
-
-module.exports = router; 
+    module.exports = router;

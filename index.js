@@ -1,15 +1,24 @@
 const express=require("express")
 const mongoose=require("mongoose")
 const cors=require("cors")
-const dotenv =require("dotenv")
+require('dotenv').config();
+const cloudinary=require("cloudinary").v2
+
 
 const app=express();
-dotenv.config();
+
+cloudinary.config({
+  cloud_name:process.env.CLOUD_NAME,
+  api_key:process.env.API_KEY,
+  api_secret:process.env.API_SECRET,
+})
+
 app.use(cors());
  app.use(express.json());
 
 app.use('/api/auth', require('./routes/auth'));
-app.use('/api/user', require('./routes/user'))
+app.use('/api/user', require('./routes/user'));
+app.use('/api/message',require('./routes/message'))
 
 async function main() {
   try {

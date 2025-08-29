@@ -2,7 +2,11 @@ const express=require("express");
 const { auth, usermiddleware } = require("../midleware/authMiddle");
 const User = require("../model/user");
 const { object } = require("zod");
+const upload = require("../midleware/upload");
 const router=express.Router();
+const multer = require("multer");
+const { default: cloudinary, cloudinary_js_config } = require("../lib/cloudinary");
+
 
 router.get("/profile",usermiddleware,async (req,res)=>{
     try {
@@ -40,14 +44,15 @@ router.patch("/updateProfile",usermiddleware,async (req,res)=>{
       }
 })
 
-router.get("/users",usermiddleware, async (req, res) => {
-    try {
-      const users = await User.find({ _id: { $ne: req.user._id } }).select('-password -connections');
-      res.send(users);
-    } catch (e) {
-      res.status(500).send(e);
-    }
-  });
+router.get('/matches',usermiddleware,async (req, res) => {
+  try {
+    const users=await User.find().select("-password -email -createdAt");
+    res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
   router.post("/connect/:id",usermiddleware,async(req,res)=>{
     try {
@@ -73,6 +78,23 @@ router.get("/users",usermiddleware, async (req, res) => {
         })
     }
   })
+  router.post("/upload", upload.single("file"), async (req, res) => {
+    try {
+      console.log("✅ File received:", req.file.path);
+  
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "uploads",
+      });
+  
+      // delete local file after upload
+      fs.unlinkSync(req.file.path);
+  
+      res.json({ url: result.secure_url });
+    } catch (error) {
+      console.error("Cloudinary upload failed:", error.message);
+      res.status(500).json({ error: "Cloudinary upload failed" });
+    }
+  });
    
 router.get("/connections",usermiddleware, async (req, res) => {
     try {
@@ -83,9 +105,6 @@ router.get("/connections",usermiddleware, async (req, res) => {
       res.status(500).json({ error: err.message });
     }
   });
-  
-
-  
-
-module.exports = router; 
+   
+  module.exports = router;
 
